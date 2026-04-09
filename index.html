@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StreamFlow — HLS Video Player</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="logo">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <circle cx="14" cy="14" r="14" fill="#e50914"/>
+          <polygon points="11,8 22,14 11,20" fill="white"/>
+        </svg>
+        <span>StreamFlow</span>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="video-wrapper">
+        <!-- Status Banner -->
+        <div class="status-banner" id="status-banner" role="status" aria-live="polite"></div>
+
+        <!-- Video Container -->
+        <div class="video-container" id="video-container" tabindex="0"
+             aria-label="Video player. Use Space to play/pause, Arrow keys to seek, M to mute, F for fullscreen.">
+
+          <video id="video-player" preload="metadata" aria-label="Video content"></video>
+
+          <!-- Buffering Spinner -->
+          <div class="buffering-overlay" id="buffering-overlay" aria-hidden="true">
+            <div class="spinner"></div>
+          </div>
+
+          <!-- Center Play/Pause Flash -->
+          <div class="center-flash" id="center-flash" aria-hidden="true">
+            <svg id="center-flash-icon" viewBox="0 0 24 24" fill="white" width="64" height="64"></svg>
+          </div>
+
+          <!-- Controls -->
+          <div class="controls-container" id="controls-container" role="group" aria-label="Video controls">
+
+            <!-- Progress Bar -->
+            <div class="progress-area">
+              <div class="progress-bar-wrapper">
+                <div class="progress-buffered" id="progress-buffered"></div>
+                <div class="progress-played" id="progress-played"></div>
+                <input
+                  type="range"
+                  data-testid="progress-bar"
+                  id="progress-bar"
+                  class="progress-bar"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  value="0"
+                  aria-label="Seek video"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow="0"
+                />
+              </div>
+              <div class="time-display">
+                <span id="current-time" aria-label="Current time">0:00</span>
+                <span class="time-sep">/</span>
+                <span id="duration" aria-label="Total duration">0:00</span>
+              </div>
+            </div>
+
+            <!-- Bottom Controls Row -->
+            <div class="controls-row">
+              <!-- Left Controls -->
+              <div class="controls-left">
+                <button
+                  data-testid="play-pause-button"
+                  id="play-pause-button"
+                  class="ctrl-btn"
+                  aria-label="Play"
+                  title="Play (Space)"
+                >
+                  <svg class="icon icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                  <svg class="icon icon-pause hidden" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                  </svg>
+                </button>
+
+                <button
+                  data-testid="mute-button"
+                  id="mute-button"
+                  class="ctrl-btn"
+                  aria-label="Mute"
+                  title="Mute (M)"
+                >
+                  <svg class="icon icon-vol-high" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                  </svg>
+                  <svg class="icon icon-vol-mute hidden" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                  </svg>
+                </button>
+
+                <div class="volume-wrapper">
+                  <input
+                    type="range"
+                    data-testid="volume-slider"
+                    id="volume-slider"
+                    class="volume-slider"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    value="1"
+                    aria-label="Volume"
+                    aria-valuemin="0"
+                    aria-valuemax="1"
+                    aria-valuenow="1"
+                  />
+                </div>
+              </div>
+
+              <!-- Right Controls -->
+              <div class="controls-right">
+                <div class="bitrate-info">
+                  <span data-testid="current-bitrate-display" id="current-bitrate-display" aria-label="Current bitrate" aria-live="polite">Auto</span>
+                </div>
+
+                <select
+                  data-testid="playback-speed-selector"
+                  id="playback-speed-selector"
+                  class="ctrl-select"
+                  aria-label="Playback speed"
+                  title="Playback speed"
+                >
+                  <option value="0.5">0.5×</option>
+                  <option value="0.75">0.75×</option>
+                  <option value="1" selected>1×</option>
+                  <option value="1.25">1.25×</option>
+                  <option value="1.5">1.5×</option>
+                  <option value="2">2×</option>
+                </select>
+
+                <select
+                  data-testid="quality-selector"
+                  id="quality-selector"
+                  class="ctrl-select"
+                  aria-label="Video quality"
+                  title="Video quality"
+                >
+                  <option value="-1">Auto</option>
+                </select>
+
+                <button
+                  data-testid="fullscreen-button"
+                  id="fullscreen-button"
+                  class="ctrl-btn"
+                  aria-label="Enter fullscreen"
+                  title="Fullscreen (F)"
+                >
+                  <svg class="icon icon-fullscreen" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+                  </svg>
+                  <svg class="icon icon-exit-fullscreen hidden" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video Info -->
+        <div class="video-info">
+          <h1 class="video-title">Big Buck Bunny — HLS Adaptive Stream</h1>
+          <p class="video-meta">
+            Streaming via HLS &bull; Adaptive Bitrate &bull;
+            <span id="completion-badge" class="completion-badge hidden" aria-label="Video completed">✓ Completed</span>
+          </p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- hls.js from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
+  <script src="player.js"></script>
+</body>
+</html>
