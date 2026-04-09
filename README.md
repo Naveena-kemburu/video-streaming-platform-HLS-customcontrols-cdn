@@ -85,11 +85,10 @@ App is accessible at `http://localhost:8080`.
 
 ```cmd
 # 1. Clone the repo
-git clone <your-repo-url>
+git clone https://github.com/Naveena-kemburu/video-streaming-platform-HLS-customcontrols-cdn.git
 
 # 2. Copy env file
 copy .env.example .env
-# Edit .env and set HLS_MANIFEST_URL
 
 # 3. Start Docker Desktop, then run:
 docker-compose up --build
